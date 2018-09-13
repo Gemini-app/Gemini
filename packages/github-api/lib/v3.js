@@ -12,23 +12,25 @@ module.exports = class API {
     this.token = token;
   }
 
-  async request({ method, path }) {
+  async request({ method, path, data = {} }) {
     const resp = await axios({
       headers: {
         Authorization: `token ${this.token}`,
         Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
       },
       method,
       url: this.endPoint + path,
+      data,
     });
     return resp.data;
   }
 
   async getFiles({ owner, repo, path = '' }) {
     const fileList = await this.getDirFileList({ owner, repo, path });
-    const files = await Promise.all(
+    return await Promise.all(
       fileList.map((file) => {
-        const task = async () => {
+        const task = async() => {
           if (file.type === 'file') {
             return await this.getFileContent({ owner, repo, path: file.path });
           }
@@ -38,9 +40,8 @@ module.exports = class API {
           return file;
         };
         return task();
-      })
+      }),
     );
-    return files;
   }
 
   async getFileContent({ owner, repo, path }) {
@@ -81,5 +82,17 @@ module.exports = class API {
     });
   }
 
-  async updateFile({ owner, repo, path }) {}
+  async updateFile({ owner, repo, path, sha, content, message }) {
+    return await this.request({
+      method: 'PUT',
+      path: `/repos/${owner}/${repo}/contents/${path}`,
+      data: {
+        path,
+        message,
+        content: base64.encode(content),
+        sha,
+        branch: 'master',
+      },
+    });
+  }
 };

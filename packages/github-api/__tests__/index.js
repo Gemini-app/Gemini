@@ -6,12 +6,15 @@
 const test = require('ava');
 const API = require('../index.js');
 
-test('get files', async (t) => {
-  const api = new API({ token: '48ba496c2c6ad6a3ae930ba2ab0ac0b97a0d19e8' });
-  const ans = await api.getFiles({
-    owner: 'Gemini-app',
-    repo: 'demo-notebook',
-  });
-  console.log(ans);
+test('get files', async(t) => {
+  const owner = 'Gemini-app';
+  const repo = 'demo-notebook';
+  const token = '';
+  const api = new API({ token });
+  const ans = await api.getFiles({ owner, repo });
+  t.is(ans.length, 3);
+  const updateFile = ans[1];
+  const resp = await api.updateFile({ owner, repo, path: updateFile.path, sha: updateFile.sha, content: new Date().toString(), message: 'Commit with GeminiApp' });
+  console.log(resp);
   t.pass();
 });
