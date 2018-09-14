@@ -4,7 +4,7 @@ Gemini adaptor to sync with GitHub API.
 
 [![NPM Version][npm-version-image]][npm-url]
 [![NPM Downloads][npm-downloads-image]][npm-url]
-[![Standard Version][standard-version-image]][standard-version-url]
+[![MIT License][license-image]][license-url]
 
 ## Design
 
