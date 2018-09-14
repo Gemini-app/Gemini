@@ -102,13 +102,7 @@ module.exports = class API {
     return await this.request({
       method: 'PUT',
       path: `/repos/${this.owner}/${this.repo}/contents/${path}`,
-      data: {
-        path,
-        message,
-        content: base64.encode(content),
-        sha,
-        branch,
-      },
+      data: { path, message, content: base64.encode(content), sha, branch },
     });
   }
 
@@ -116,12 +110,7 @@ module.exports = class API {
     return await this.request({
       method: 'PUT',
       path: `/repos/${this.owner}/${this.repo}/contents/${path}`,
-      data: {
-        path,
-        message,
-        content: base64.encode(content),
-        branch,
-      },
+      data: { path, message, content: base64.encode(content), branch },
     });
   }
 
@@ -131,12 +120,9 @@ module.exports = class API {
       sha = file.sha;
     }
     return await this.request({
-      method: 'DELETE', path: `/repos/${this.owner}/${this.repo}/contents/${path}`, data: {
-        path,
-        message,
-        sha,
-        branch,
-      },
+      method: 'DELETE',
+      path: `/repos/${this.owner}/${this.repo}/contents/${path}`,
+      data: { path, message, sha, branch },
     });
   }
 
@@ -159,6 +145,19 @@ module.exports = class API {
           return await this.deleteDir({ path: file.path, message, branch });
         }
         return await this.deleteFile({ path: file.path, sha: file.sha, message, branch });
+      };
+      return task();
+    }));
+  }
+
+  async moveDir({ fromPath, toPath }) {
+    const files = await this.readDir({ path: fromPath });
+    return await Promise.all(files.map((file) => {
+      const task = async() => {
+        if (file.type === 'dir') {
+          return await this.moveDir({ fromPath: file.path, toPath: toPath + '/' + file.name });
+        }
+        return await this.moveFile({ fromPath: file.path, toPath: toPath + '/' + file.name });
       };
       return task();
     }));

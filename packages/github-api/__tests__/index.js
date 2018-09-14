@@ -104,3 +104,18 @@ test.serial('delete dir', async(t) => {
   });
   t.is(deleteDir.length, 0);
 });
+
+test.serial('move dir', async(t) => {
+  const fromPath = '__tests__/fixtures/recursive-dir';
+  const basePath = '__tests__/fixtures';
+  const name = 'recursive-dir-destination';
+  const toPath = basePath + '/' + name;
+  const api = new API({ token, owner, repo });
+  await api.moveDir({ fromPath, toPath });
+  const files = await api.readDir({ path: basePath });
+  const destFiles = files.filter((file) => {
+    return file.name === name;
+  });
+  t.is(destFiles.length, 1);
+  await api.moveDir({ fromPath: toPath, toPath: fromPath });
+});
