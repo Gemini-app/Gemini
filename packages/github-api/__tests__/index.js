@@ -71,3 +71,10 @@ test.serial('create dir', async(t) => {
   t.is(file.content, '');
   await api.deleteFile({ path: gitKeepPath, sha: resp.content.sha });
 });
+
+test.serial('read dir', async(t) => {
+  const path = '__tests__/fixtures';
+  const api = new API({ token, owner, repo });
+  const files = await api.readDir({ path });
+  t.is(files.length, 3);
+});
