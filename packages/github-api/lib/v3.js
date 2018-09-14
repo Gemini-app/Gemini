@@ -47,7 +47,7 @@ module.exports = class API {
               size: file.size,
               type: file.type,
               files: await this.readDirR({ path: file.path }),
-            }
+            };
           }
           return file;
         };
@@ -149,6 +149,19 @@ module.exports = class API {
 
   async createDir({ path }) {
     return await this.createFile({ path: path + '/.gitkeep', content: '' });
+  }
+
+  async deleteDir({ path, message = this.defaultMessage, branch = this.defaultBranch }) {
+    const files = await this.readDir({ path });
+    return await Promise.all(files.map((file) => {
+      const task = async() => {
+        if (file.type === 'dir') {
+          return await this.deleteDir({ path: file.path, message, branch });
+        }
+        return await this.deleteFile({ path: file.path, sha: file.sha, message, branch });
+      };
+      return task();
+    }));
   }
 
 };

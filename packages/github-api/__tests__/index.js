@@ -66,10 +66,10 @@ test.serial('create dir', async(t) => {
   const path = '__tests__/fixtures/create-dir';
   const gitKeepPath = path + '/.gitkeep';
   const api = new API({ token, owner, repo });
-  const resp = await api.createDir({ path });
+  await api.createDir({ path });
   const file = await api.readFile({ path: gitKeepPath });
   t.is(file.content, '');
-  await api.deleteFile({ path: gitKeepPath, sha: resp.content.sha });
+  await api.deleteDir({ path });
 });
 
 test.serial('read dir', async(t) => {
@@ -89,4 +89,18 @@ test.serial('read dir recursively', async(t) => {
     return file.name === name;
   });
   t.is(rDir.files.length, 1);
+});
+
+test.serial('delete dir', async(t) => {
+  const parentDir = '__tests__/fixtures';
+  const name = 'delete-dir';
+  const path = parentDir + '/' + name;
+  const api = new API({ token, owner, repo });
+  await api.createDir({ path });
+  await api.deleteDir({ path });
+  const files = await api.readDir({ path: parentDir });
+  const deleteDir = files.filter((file) => {
+    return file.name === name;
+  });
+  t.is(deleteDir.length, 0);
 });
