@@ -5,3 +5,4 @@ node_modules
 .nyc_output
 coverage.lcov
 coverage
+packages/github-api/__tests__/helpers/token.js

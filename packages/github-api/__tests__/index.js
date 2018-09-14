@@ -8,26 +8,56 @@ const API = require('../index.js');
 
 const owner = 'Gemini-app';
 const repo = 'demo-notebook';
-const token = '';
+const token = require('./helpers/token.js');
 
-test('get files', async(t) => {
-  const api = new API({ token });
-  const ans = await api.getFiles({ owner, repo });
-  t.is(ans.length, 3);
+test.serial('read file', async(t) => {
+  const api = new API({ token, owner, repo });
+  const file = await api.readFile({ path: '__tests__/fixtures/get-file.txt' });
+  t.is(file.content, 'get file ok');
 });
 
-test('update file', async(t) => {
-  const api = new API({ token });
-  const ans = await api.getFiles({ owner, repo });
-  const updateFile = ans[1];
-  const resp = await api.updateFile({
-    owner,
-    repo,
-    path: updateFile.path,
-    sha: updateFile.sha,
-    content: new Date().toString(),
-    message: 'Commit with GeminiApp',
+test.serial('create file', async(t) => {
+  const path = '__tests__/fixtures/create-file.txt';
+  const content = 'create file ok';
+  const api = new API({ token, owner, repo });
+  await api.createFile({ path, content });
+  const file = await api.readFile({ path });
+  t.is(file.content, content);
+  await api.deleteFile({ path, sha: file.sha });
+});
+
+test.serial('delete file', async(t) => {
+  const dir = '__tests__/fixtures';
+  const path = dir + '/delete-file.txt';
+  const content = 'delete file';
+  const api = new API({ token, owner, repo });
+  const resp = await api.createFile({ path, content });
+  await api.deleteFile({ path, sha: resp.content.sha });
+  let fileList = await api.readDir({ path: dir });
+  fileList = fileList.filter((file) => {
+    return file.path === path;
   });
-  t.is(typeof resp.content, 'object');
-  t.is(typeof resp.commit, 'object');
+  t.is(fileList.length, 0);
+});
+
+test.serial('update file', async(t) => {
+  const path = '__tests__/fixtures/update-file.txt';
+  const content = new Date().toString();
+  const api = new API({ token, owner, repo });
+  let file = await api.readFile({ path });
+  t.is(content === file.content, false);
+  await api.updateFile({ path, sha: file.sha, content });
+  file = await api.readFile({ path });
+  t.is(content, file.content);
+});
+
+test.serial('move file', async(t) => {
+  const fromPath = '__tests__/fixtures/move-file.txt';
+  const toPath = '__tests__/fixtures/move-file-destination.txt';
+  const api = new API({ token, owner, repo });
+  const file = await api.readFile({ path: fromPath });
+  await api.moveFile({ fromPath, toPath });
+  const newFile = await api.readFile({ path: toPath });
+  t.is(file.content, newFile.content);
+  await api.moveFile({ fromPath: toPath, toPath: fromPath });
 });

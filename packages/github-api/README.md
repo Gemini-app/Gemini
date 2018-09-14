@@ -14,13 +14,16 @@ Gemini adaptor to sync with GitHub API.
 - A npm package.
 - Should be able to run on electron, nodejs, browser, react-native.
 - API
-  - Sync
-    - Local to remote
-    - Remote to local
-    - Show conflict
-    - Initialize project
-
-## TODO
+  - Read file
+  - Create file
+  - Delete file
+  - Update file
+  - Move file
+  - Create directory
+  - Read directory
+  - Read directory recursively
+  - Delete directory
+  - Move directory
 
 ## Prior Art
 
