@@ -61,3 +61,13 @@ test.serial('move file', async(t) => {
   t.is(file.content, newFile.content);
   await api.moveFile({ fromPath: toPath, toPath: fromPath });
 });
+
+test.serial('create dir', async(t) => {
+  const path = '__tests__/fixtures/create-dir';
+  const gitKeepPath = path + '/.gitkeep';
+  const api = new API({ token, owner, repo });
+  const resp = await api.createDir({ path });
+  const file = await api.readFile({ path: gitKeepPath });
+  t.is(file.content, '');
+  await api.deleteFile({ path: gitKeepPath, sha: resp.content.sha });
+});

@@ -131,12 +131,6 @@ module.exports = class API {
     });
   }
 
-  /**
-   * Move file
-   * @param fromPath
-   * @param toPath
-   * @returns {Promise<*>}
-   */
   async moveFile({ fromPath, toPath }) {
     const file = await this.readFile({ path: fromPath });
     const newFileResp = await this.createFile({ path: toPath, content: file.content });
@@ -144,8 +138,8 @@ module.exports = class API {
     return newFileResp;
   }
 
-  async createDir({}) {
-
+  async createDir({ path }) {
+    return await this.createFile({ path: path + '/.gitkeep', content: '' });
   }
 
 };
