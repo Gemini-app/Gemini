@@ -76,5 +76,17 @@ test.serial('read dir', async(t) => {
   const path = '__tests__/fixtures';
   const api = new API({ token, owner, repo });
   const files = await api.readDir({ path });
-  t.is(files.length, 3);
+  t.is(files.length, 4);
+});
+
+test.serial('read dir recursively', async(t) => {
+  const path = '__tests__/fixtures';
+  const name = 'recursive-dir';
+  const api = new API({ token, owner, repo });
+  const files = await api.readDirR({ path });
+  t.is(files.length, 4);
+  const rDir = files.find((file) => {
+    return file.name === name;
+  });
+  t.is(rDir.files.length, 1);
 });

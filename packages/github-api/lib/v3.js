@@ -31,7 +31,7 @@ module.exports = class API {
     return resp.data;
   }
 
-  async readDirRecursively({ path = this.defaultPath }) {
+  async readDirR({ path = this.defaultPath }) {
     const fileList = await this.readDir({ path });
     return await Promise.all(
       fileList.map((file) => {
@@ -40,7 +40,14 @@ module.exports = class API {
             return await this.readFile({ path: file.path });
           }
           if (file.type === 'dir') {
-            return await this.readDirRecursively({ path: file.path });
+            return {
+              name: file.name,
+              path: file.path,
+              sha: file.sha,
+              size: file.size,
+              type: file.type,
+              files: await this.readDirR({ path: file.path }),
+            }
           }
           return file;
         };
@@ -107,7 +114,9 @@ module.exports = class API {
 
   async createFile({ path, content, message = this.defaultMessage, branch = this.defaultBranch }) {
     return await this.request({
-      method: 'PUT', path: `/repos/${this.owner}/${this.repo}/contents/${path}`, data: {
+      method: 'PUT',
+      path: `/repos/${this.owner}/${this.repo}/contents/${path}`,
+      data: {
         path,
         message,
         content: base64.encode(content),
